@@ -29,7 +29,6 @@ import logging
 
 reSplitCG = re.compile('[ATN]|CG|[CG]')
 reCGPos = re.compile('(CG)')
-log = None
 
 def init_log(logfilename):
 	logging.basicConfig(level = logging.DEBUG, 
@@ -591,6 +590,7 @@ def main():
 	# set up logging system
 
 	baseFileName = os.path.splitext(os.path.basename(args.infafile))[0]
+	global log
 	log = init_log(baseFileName + '.log')
 
 	# check commandline varabile
