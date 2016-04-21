@@ -520,8 +520,9 @@ def write_density_csv(dictDensity, filename):
 		sys.exit(-1)
 	
 	for chrname in dictDensity:
-		csvFile.write('chr\tpos\tdensity\n')
-		csvFile.write('\n'.join([format('%s\t%d\t%f' % (chrname, pos + 1, density)) for pos, density in enumerate(dictDensity[chrname])]))		
+		csvFile.write('chr\tdensity\n')
+		chrcode = chrname.strip('chr')
+		csvFile.write('\n'.join([format('%s\t%f' % (chrcode, density)) for density in dictDensity[chrname]]))		
 	csvFile.close()
 
 def write_kde_density(cgipdf, noncgipdf, valleypdf, cgimax, noncgimax, valleymax, HMthreshold, MLthreshold, filename):
