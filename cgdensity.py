@@ -601,7 +601,7 @@ def main():
 	# set up logging system
 
 	baseFileName = os.path.splitext(os.path.basename(args.infafile))[0]
-	log = init_log(baseFileName + '.log')
+	global log = init_log(baseFileName + '.log')
 
 	# load reference sequence
 
