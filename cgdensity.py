@@ -33,7 +33,7 @@ reCGPos = re.compile('(CG)')
 def init_log(logfilename):
 	logging.basicConfig(level = logging.DEBUG, 
 		format = '%(asctime)s %(message)s', 
-		datefmt = '%y-%m-%d %H:%M', 
+		datefmt = '%Y-%m-%d %H:%M',
 		filename = logfilename,
 		filemode = 'w')
 
@@ -602,8 +602,8 @@ def main():
 		log.info('error: CpG island database file "', args.cgifile, '"', ' doest not exist.')
 		sys.exit(-1)
 	
-	isWinSizeSet = (args.winsize is None)
-	isDeltaSet = (args.delta is None)
+	isWinSizeSet = (args.winsize is not None)
+	isDeltaSet = (args.delta is not None)
 	
 	# load reference sequence
 
