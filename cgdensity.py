@@ -197,9 +197,17 @@ def load_cg_island(filename):
 			chrname = line[1].strip()
 			if not chrname in dictCGI:
 				dictCGI[chrname] = []
-			dictCGI[chrname] += [(int(line[2]), int(line[3]))]
+			dictCGI[chrname] += [(int(line[2]), int(line[3])), int(line[5])]
 	cgiFile.close()
 	return(dictCGI)
+
+def cgi_avg_len(dictCGI):
+	cgisum = 0.0
+	cgicount = 0.0
+	for chrname in dictCGI:
+		cgicount += len(dictCGI[chrname])
+		(cgisum += int(cglen)) for cglen in dictCGI[chrname][2]
+	return (cgisum / cgicount if cgicount > 0 else 0)
 
 ###################################################################
 ## functions
@@ -460,7 +468,6 @@ def get_density_threshold(dictRegion, dictCGI):
 
 	return(HMthreshold, MLthreshold, cgipdf, cgimax, noncgipdf, noncgimax, valleypdf, valleymax)		
 
-
 def classfy_regions(dictRegion, HMthreshold, MLthreshold):
 	for chrname in dictRegion:
 		regions = dictRegion[chrname]
@@ -498,7 +505,6 @@ def write_density_csv(dictDensity, filename):
 		csvFile.write('chr\tpos\tdensity\n')
 		csvFile.write('\n'.join([format('%s\t%d\t%f' % (chrname, pos + 1, density)) for pos, density in enumerate(dictDensity[chrname])]))		
 	csvFile.close()
-
 
 def write_kde_density(cgipdf, noncgipdf, valleypdf, cgimax, noncgimax, valleymax, HMthreshold, MLthreshold, filename):
 	try:
@@ -555,7 +561,7 @@ def main():
 		type = str, default = 'guassian', 
 		help = 'convolution function')
 	parser.add_argument('-W', '--winsize', dest = 'winsize',
-		type = float, default = 655.0, 
+		type = float, 
 		help = 'convolution window size')
 	parser.add_argument('-D', '--delta', dest = 'delta',
 		type = float,
@@ -575,12 +581,19 @@ def main():
 	print('[*] loading reference sequences')
 	dictRefSeq = load_reference_fa(args.infafile)
 
+	# load CpG Island & calculate convolution window size
+
+	dictCGI = load_cg_island(args.cgifile)
+	if args.winsize is None:
+		args.winsize = cgi_avg_len(dictCGI)
+
 	# get CpG densities
 
 	dictDensity = {}
 	print('[*] calculating CpG density ...')
 	for chrname in dictRefSeq:
 		print('    calculating CpG density for chromsome ' + chrname)
+		print('    [window size = ' + str(args.winsize) + ']')
 		cgdensity = get_cg_density(dictRefSeq[chrname], args.winsize, args.convfunc)
 		dictDensity[chrname] = cgdensity
 
@@ -592,7 +605,8 @@ def main():
 		print('    calculating Region for chromsome ' + chrname)
 		density = dictDensity[chrname]
 		if args.delta is None:
-			args.delta = np.max(density) * 0.05 
+			args.delta = np.max(density) * 0.05
+			print('    [peak detect delta = ' + str(args.delta) + ']')
 		peaks = get_peaks(density, winsize = args.winsize, delta = float(args.delta))
 		valleys = get_valley(density, peaks)
 		dictRegion[chrname] = peaks + valleys
@@ -600,7 +614,6 @@ def main():
 	# get overlaps with CpG island
 
 	print('[*] getting CpG density threshold ...')
-	dictCGI = load_cg_island(args.cgifile)
 	HMthreshold, MLthreshold, cgipdf, cgimax, noncgipdf, noncgimax, valleypdf, valleymax = get_density_threshold(dictRegion, dictCGI)
 
 	# annotate regions 
