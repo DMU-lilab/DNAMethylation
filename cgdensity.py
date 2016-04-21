@@ -29,7 +29,7 @@ import logging
 
 reSplitCG = re.compile('[ATN]|CG|[CG]')
 reCGPos = re.compile('(CG)')
-
+log = None
 
 def init_log(logfilename):
 	logging.basicConfig(level = logging.DEBUG, 
@@ -586,8 +586,15 @@ def main():
 		type = float,
 		help = 'delta value for peak finder')
 
-
 	args = parser.parse_args()
+
+	# set up logging system
+
+	baseFileName = os.path.splitext(os.path.basename(args.infafile))[0]
+	log = init_log(baseFileName + '.log')
+
+	# check commandline varabile
+
 	if(not os.path.exists(args.infafile)):
 		log.info('error: Reference sequence file "', args.infafile, '"', ' doest not exist.')
 		sys.exit(-1)
@@ -597,12 +604,7 @@ def main():
 	
 	isWinSizeSet = (args.winsize is None)
 	isDeltaSet = (args.delta is None)
-
-	# set up logging system
-
-	baseFileName = os.path.splitext(os.path.basename(args.infafile))[0]
-	global log = init_log(baseFileName + '.log')
-
+	
 	# load reference sequence
 
 	log.info('[*] loading reference sequences')
