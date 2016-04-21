@@ -553,6 +553,18 @@ def write_regions_bed(dictRegion, filename):
 				(chrname, region[1], region[2], region[6], 0, '+' if region[5] == "PEAK" else '-', region[1], region[2], dictColors[region[6]]))
 	bedfile.close()
 
+def write_cgposition_wig(dictRefSeq, filename):
+	try:
+		wigFile = open(filename, 'w')
+	except IOError:
+		log.info('error: write to wig file "' + filename + '" failed!')
+		sys.exit(-1)
+	for chrname in dictRefSeq:
+		vpos = get_cg_pos(dictRefSeq[chrname])
+		wigFile.write('fixedStep chrom=' + chrname + ' start=1 step=1' + '\n')
+		wigFile.write('\n'.join([format(x) for x in vpos]))		
+	wigFile.close()
+
 def write_density_wig(dictDensity, filename):
 	try:
 		wigFile = open(filename, 'w')
@@ -658,6 +670,10 @@ def main():
 	# write output files
 
 	log.info('[*] writting output files ...')
+
+	log.info('    writting cg position wig file')
+	write_cgposition_wig(dictRefSeq, baseFileName + '.cgpos.wig')
+
 	log.info('    writting regions csv file')
 	write_regions_csv(dictRegion, baseFileName + '.regions.csv')
 
