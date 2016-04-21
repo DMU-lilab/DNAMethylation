@@ -197,7 +197,7 @@ def load_cg_island(filename):
 			chrname = line[1].strip()
 			if not chrname in dictCGI:
 				dictCGI[chrname] = []
-			dictCGI[chrname] += [(int(line[2]), int(line[3])), int(line[5])]
+			dictCGI[chrname] += [(int(line[2]), int(line[3]), int(line[5]))]
 	cgiFile.close()
 	return(dictCGI)
 
@@ -206,7 +206,8 @@ def cgi_avg_len(dictCGI):
 	cgicount = 0.0
 	for chrname in dictCGI:
 		cgicount += len(dictCGI[chrname])
-		(cgisum += int(cglen)) for cglen in dictCGI[chrname][2]
+		for cgi in dictCGI[chrname]:
+			cgisum += int(cgi[2])
 	return (cgisum / cgicount if cgicount > 0 else 0)
 
 ###################################################################
@@ -575,6 +576,9 @@ def main():
 	if(not os.path.exists(args.cgifile)):
 		print('error: CpG island database file "', args.cgifile, '"', ' doest not exist.')
 		sys.exit(-1)
+	
+	isWinSizeSet = (args.winsize is None)
+	isDeltaSet = (args.delta is None)
 
 	# load reference sequence
 
@@ -584,8 +588,10 @@ def main():
 	# load CpG Island & calculate convolution window size
 
 	dictCGI = load_cg_island(args.cgifile)
-	if args.winsize is None:
-		args.winsize = cgi_avg_len(dictCGI)
+	if isWinSizeSet:
+		winsize = args.winsize
+	else:
+		winsize = cgi_avg_len(dictCGI)
 
 	# get CpG densities
 
@@ -593,8 +599,8 @@ def main():
 	print('[*] calculating CpG density ...')
 	for chrname in dictRefSeq:
 		print('    calculating CpG density for chromsome ' + chrname)
-		print('    [window size = ' + str(args.winsize) + ']')
-		cgdensity = get_cg_density(dictRefSeq[chrname], args.winsize, args.convfunc)
+		print('    [window size = ' + str(winsize) + ']')
+		cgdensity = get_cg_density(dictRefSeq[chrname], winsize, args.convfunc)
 		dictDensity[chrname] = cgdensity
 
 	# get CpG density peaks & valleys
@@ -604,10 +610,12 @@ def main():
 	for chrname in dictDensity:
 		print('    calculating Region for chromsome ' + chrname)
 		density = dictDensity[chrname]
-		if args.delta is None:
-			args.delta = np.max(density) * 0.05
-			print('    [peak detect delta = ' + str(args.delta) + ']')
-		peaks = get_peaks(density, winsize = args.winsize, delta = float(args.delta))
+		if isDeltaSet:
+			delta = args.delta
+		else:
+			delta = np.max(density) * 0.05
+		print('    [peak detect delta = ' + str(delta) + ']')
+		peaks = get_peaks(density, winsize = winsize, delta = float(delta))
 		valleys = get_valley(density, peaks)
 		dictRegion[chrname] = peaks + valleys
 
