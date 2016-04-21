@@ -25,8 +25,26 @@ from intervaltree import Interval, IntervalTree
 from scipy.stats.kde import gaussian_kde
 from scipy.optimize import newton
 
+import logging
+
 reSplitCG = re.compile('[ATN]|CG|[CG]')
 reCGPos = re.compile('(CG)')
+
+
+def init_log(logfilename):
+	logging.basicConfig(level = logging.DEBUG, 
+		format = '%(asctime)s %(message)s', 
+		datefmt = '%y-%m-%d %H:%M', 
+		filename = logfilename,
+		filemode = 'w')
+
+	console = logging.StreamHandler()
+	console.setLevel(logging.INFO)
+	formatter = logging.Formatter('%(message)s')
+	console.setFormatter(formatter)
+	logging.getLogger('').addHandler(console)
+
+	return(logging.getLogger(''))
 
 #######################################################################
 ## library: peakdetect
@@ -177,7 +195,7 @@ def load_reference_fa(filename):
 
 				chrname = line[1:].strip()
 				seq = ''
-				print('    loading reference sequence: ' + chrname)
+				log.info('    loading reference sequence: ' + chrname)
 			else:
 				seq += line.strip().upper()
 		
@@ -486,7 +504,7 @@ def write_regions_csv(dictRegion, filename):
 	try:
 		csvfile = open(filename, 'w')
 	except IOError:
-		print('error: write to csv file "' + filename + '" failed!')
+		log.info('error: write to csv file "' + filename + '" failed!')
 		sys.exit(-1)
 	csvfile.write('chr\tpos\tstart\tend\tmax/min\tmean\ttype\tclass\n')
 	for chrname in dictRegion:
@@ -499,7 +517,7 @@ def write_density_csv(dictDensity, filename):
 	try:
 		csvFile = open(filename, 'w')
 	except IOError:
-		print('error: write to csv file "' + filename + '" failed!')
+		log.info('error: write to csv file "' + filename + '" failed!')
 		sys.exit(-1)
 	
 	for chrname in dictDensity:
@@ -511,7 +529,7 @@ def write_kde_density(cgipdf, noncgipdf, valleypdf, cgimax, noncgimax, valleymax
 	try:
 		outfile = open(filename, 'w')
 	except IOError:
-		print('error: write to file "' + filename + '" failed!')
+		log.info('error: write to file "' + filename + '" failed!')
 		sys.exit(-1)
 	outfile.write(format('# cgipeak = %f cgipeakvalue = %f \n# noncgipeak = %f noncgipeakvalue = %f\n# valleypeak = %f valleypeakvalue = %f\n# HMthreshold = %f  MLthreshold = %f\n') % 
 		(cgimax, cgipdf(cgimax), noncgimax, noncgipdf(noncgimax), valleymax, valleypdf(valleymax), HMthreshold, MLthreshold))
@@ -526,7 +544,7 @@ def write_regions_bed(dictRegion, filename):
 	try:
 		bedfile = open(filename, 'w')
 	except IOError:
-		print('error: write to file "' + filename + '" failed!')
+		log.info('error: write to file "' + filename + '" failed!')
 		sys.exit(-1)
 	dictColors = {"L":"255,0,0", "M":"0,255,0", "H":"0,0,255"}
 	for chrname in dictRegion:
@@ -539,7 +557,7 @@ def write_density_wig(dictDensity, filename):
 	try:
 		wigFile = open(filename, 'w')
 	except IOError:
-		print('error: write to wig file "' + filename + '" failed!')
+		log.info('error: write to wig file "' + filename + '" failed!')
 		sys.exit(-1)
 	
 	for chrname in dictDensity:
@@ -571,18 +589,23 @@ def main():
 
 	args = parser.parse_args()
 	if(not os.path.exists(args.infafile)):
-		print('error: Reference sequence file "', args.infafile, '"', ' doest not exist.')
+		log.info('error: Reference sequence file "', args.infafile, '"', ' doest not exist.')
 		sys.exit(-1)
 	if(not os.path.exists(args.cgifile)):
-		print('error: CpG island database file "', args.cgifile, '"', ' doest not exist.')
+		log.info('error: CpG island database file "', args.cgifile, '"', ' doest not exist.')
 		sys.exit(-1)
 	
 	isWinSizeSet = (args.winsize is None)
 	isDeltaSet = (args.delta is None)
 
+	# set up logging system
+
+	baseFileName = os.path.splitext(os.path.basename(args.infafile))[0]
+	log = init_log(baseFileName + '.log')
+
 	# load reference sequence
 
-	print('[*] loading reference sequences')
+	log.info('[*] loading reference sequences')
 	dictRefSeq = load_reference_fa(args.infafile)
 
 	# load CpG Island & calculate convolution window size
@@ -596,59 +619,58 @@ def main():
 	# get CpG densities
 
 	dictDensity = {}
-	print('[*] calculating CpG density ...')
+	log.info('[*] calculating CpG density ...')
 	for chrname in dictRefSeq:
-		print('    calculating CpG density for chromsome ' + chrname)
-		print('    [window size = ' + str(winsize) + ']')
+		log.info('    calculating CpG density for chromsome ' + chrname)
+		log.info('    [window size = ' + str(winsize) + ']')
 		cgdensity = get_cg_density(dictRefSeq[chrname], winsize, args.convfunc)
 		dictDensity[chrname] = cgdensity
 
 	# get CpG density peaks & valleys
 
 	dictRegion = {}
-	print('[*] spliting peaks and valleys ...')
+	log.info('[*] spliting peaks and valleys ...')
 	for chrname in dictDensity:
-		print('    calculating Region for chromsome ' + chrname)
+		log.info('    calculating Region for chromsome ' + chrname)
 		density = dictDensity[chrname]
 		if isDeltaSet:
 			delta = args.delta
 		else:
 			delta = np.max(density) * 0.05
-		print('    [peak detect delta = ' + str(delta) + ']')
+		log.info('    [peak detect delta = ' + str(delta) + ']')
 		peaks = get_peaks(density, winsize = winsize, delta = float(delta))
 		valleys = get_valley(density, peaks)
 		dictRegion[chrname] = peaks + valleys
 
 	# get overlaps with CpG island
 
-	print('[*] getting CpG density threshold ...')
+	log.info('[*] getting CpG density threshold ...')
 	HMthreshold, MLthreshold, cgipdf, cgimax, noncgipdf, noncgimax, valleypdf, valleymax = get_density_threshold(dictRegion, dictCGI)
 
 	# annotate regions 
 
-	print('[*] classifying regions ...')
+	log.info('[*] classifying regions ...')
 	dictRegion = classfy_regions(dictRegion, HMthreshold, MLthreshold)
 
 	# write output files
 
-	baseFileName = os.path.splitext(os.path.basename(args.infafile))[0]
-	print('[*] writting output files ...')
-	print('    writting regions csv file')
+	log.info('[*] writting output files ...')
+	log.info('    writting regions csv file')
 	write_regions_csv(dictRegion, baseFileName + '.regions.csv')
 
-	print('    writting density csv file')
+	log.info('    writting density csv file')
 	write_density_csv(dictDensity, baseFileName + '.density.csv')
 
-	print('    writting CpG Island and CpG Density for Kernel Density Estimation')
+	log.info('    writting CpG Island and CpG Density for Kernel Density Estimation')
 	write_kde_density(cgipdf, noncgipdf, valleypdf, cgimax, noncgimax, valleymax, HMthreshold, MLthreshold, baseFileName + '.kde')
 
-	print('    writting regions bed file')
+	log.info('    writting regions bed file')
 	write_regions_bed(dictRegion, baseFileName + '.bed')
 
-	print('    writting wig file')
+	log.info('    writting wig file')
 	write_density_wig(dictDensity, baseFileName + '.cgden.wig')
 
-	print('[*] done')
+	log.info('[*] done')
 
 if __name__ == '__main__':
 	main()
