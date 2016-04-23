@@ -562,7 +562,7 @@ def write_cgposition_wig(dictRefSeq, filename):
 	for chrname in dictRefSeq:
 		vpos = get_cg_pos(dictRefSeq[chrname])
 		wigFile.write('fixedStep chrom=' + chrname + ' start=1 step=1' + '\n')
-		wigFile.write('\n'.join([format(x) for x in vpos]))		
+		wigFile.write('\n'.join([format(x) for x in vpos]) + '\n')		
 	wigFile.close()
 
 def write_density_wig(dictDensity, filename):
@@ -574,7 +574,7 @@ def write_density_wig(dictDensity, filename):
 	
 	for chrname in dictDensity:
 		wigFile.write('fixedStep chrom=' + chrname + ' start=1 step=1' + '\n')
-		wigFile.write('\n'.join([format(x) for x in dictDensity[chrname]]))		
+		wigFile.write('\n'.join([format(x) for x in dictDensity[chrname]]) + '\n')		
 	wigFile.close()
 
 def main():
