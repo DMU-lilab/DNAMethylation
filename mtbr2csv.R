@@ -13,7 +13,6 @@ if(!file.exists(kMtbrPath)){
   stop("mtbr path \"", kMtbrPath ,"\" does not exist.")
 }
 
-filename.base <- file_path_sans_ext(basename(kMtbrPath))
 output.filename <- kOutputCsv
 if (file.exists(output.filename)) {
 	file.remove(output.filename)
