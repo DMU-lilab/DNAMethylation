@@ -79,7 +79,7 @@ def get_methy_density(scorev, winsize, func = "guassian"):
 	if(func == 'rect'):
 		winv = [1 / winsize] * winsize
 	else:
-		winv = [_guassian(x, 0, winsize / 5.16) for x in range(-int(winsize / 2), int(winsize / 2))]
+		winv = [_guassian(x, 0, winsize / 2.355) for x in range(-int(winsize * 1.7), int(winsize * 1.7))]
 	methydensity = np.convolve(scorev, winv, mode = "same")
 
 	return(methydensity)
