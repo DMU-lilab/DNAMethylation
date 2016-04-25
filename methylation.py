@@ -113,7 +113,7 @@ def write_density_csv(dictDensity, filename):
 	
 	for chrname in dictDensity:
 		csvFile.write('chr\tpos\tdensity\n')
-		csvFile.write('\n'.join([format('%s\t%d\t%f' % (chrname, pos + 1, density)) for pos, density in enumerate(dictDensity[chrname])]))		
+		csvFile.write('\n'.join([format('%s\t%d\t%f' % (chrname, density)) for density in dictDensity[chrname]]) + '\n')		
 	csvFile.close()
 
 def write_density_wig(dictDensity, filename):
@@ -125,7 +125,7 @@ def write_density_wig(dictDensity, filename):
 	
 	for chrname in dictDensity:
 		wigFile.write('fixedStep chrom=' + chrname + ' start=1 step=1' + '\n')
-		wigFile.write('\n'.join([format(x) for x in dictDensity[chrname]]))		
+		wigFile.write('\n'.join([format(x) for x in dictDensity[chrname]]) + '\n')		
 	wigFile.close()
 
 
