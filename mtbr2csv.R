@@ -15,12 +15,12 @@ if(!file.exists(kMtbrPath)){
 
 output.filename <- kOutputCsv
 if (file.exists(output.filename)) {
-	file.remove(output.filename)
+	file.unlink(output.filename)
 }
 
 mtbr.files <- list.files(kMtbrPath, full.names = TRUE)
 for (mtbr.file in mtbr.files) {
-	message("converting", mtbr.file)
+	message("converting ", mtbr.file)
 	load(mtbr.file)
 	cg.mtbr$posi <- as.integer(cg.mtbr$posi)
 	cg.mtbr$rC_n <- as.integer(cg.mtbr$rC_n)
