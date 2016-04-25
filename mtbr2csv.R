@@ -18,6 +18,7 @@ if (file.exists(output.filename)) {
 	unlink(output.filename)
 }
 
+cat("chrom,posi,rC_n,rC_p,rT_n,rT_p", file = output.filename)
 mtbr.files <- list.files(kMtbrPath, full.names = TRUE)
 for (mtbr.file in mtbr.files) {
 	message("converting ", mtbr.file)
@@ -28,6 +29,6 @@ for (mtbr.file in mtbr.files) {
 	cg.mtbr$rT_n <- as.integer(cg.mtbr$rT_n)
 	cg.mtbr$rT_p <- as.integer(cg.mtbr$rT_p)
 
-	write.csv(cg.mtbr, output.filename, row.names = FALSE, quote = FALSE, append = TRUE, col.names = FALSE)
+	write.table(cg.mtbr, output.filename, row.names = FALSE, quote = FALSE, append = TRUE, col.names = FALSE, sep = ",")
 }
 
