@@ -112,7 +112,6 @@ def write_density_csv(dictDensity, filename):
 		sys.exit(-1)
 	
 	for chrname in dictDensity:
-		csvFile.write('chr\tpos\tdensity\n')
 		csvFile.write('\n'.join([format('%s\t%f' % (chrname, density)) for density in dictDensity[chrname]]) + '\n')		
 	csvFile.close()
 
