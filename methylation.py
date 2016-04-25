@@ -23,10 +23,28 @@ from intervaltree import Interval, IntervalTree
 from scipy.stats.kde import gaussian_kde
 from scipy.optimize import fsolve
 
+import logging
 
 #####################################################################
 # common functions
 #####################################################################
+
+# log fuction
+
+def init_log(logfilename):
+	logging.basicConfig(level = logging.DEBUG, 
+		format = '%(asctime)s %(message)s', 
+		datefmt = '%Y-%m-%d %H:%M',
+		filename = logfilename,
+		filemode = 'w')
+
+	console = logging.StreamHandler()
+	console.setLevel(logging.INFO)
+	formatter = logging.Formatter('%(message)s')
+	console.setFormatter(formatter)
+	logging.getLogger('').addHandler(console)
+
+	return(logging.getLogger(''))
 
 # load Methylation 
 
@@ -137,6 +155,9 @@ def main():
 		print('error: chrom sizes file "', args.chromsizesfile, '"', ' doest not exist.')
 		sys.exit(-1)
 
+	baseFileName = os.path.splitext(os.path.basename(args.mtbrfile))[0]
+	global log
+	log = init_log(baseFileName + '.log')
 
 	# load  methylation mtbr file
 
