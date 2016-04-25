@@ -5,9 +5,9 @@ suppressPackageStartupMessages(library("tools", quietly=TRUE, verbose=FALSE, war
 
 # Get command line options & arguments
 
-arguments <- parse_args(OptionParser(usage = "%prog [options] mtbr.folder output.mtbr.csv"), positional_arguments = 2)
-kMtbrPath <- arguments$args[0]
-kOutputCsv <- arguments$args[1]
+arguments <- parse_args(OptionParser(usage = "%prog mtbr.folder output.mtbr.csv"), positional_arguments = 2)
+kMtbrPath <- arguments$args[1]
+kOutputCsv <- arguments$args[2]
 
 if(!file.exists(kMtbrPath)){
   stop("mtbr path \"", kMtbrPath ,"\" does not exist.")
@@ -20,7 +20,7 @@ if (file.exists(output.filename)) {
 }
 
 mtbr.files <- list.files(kMtbrPath, full.names = TRUE)
-for mtbr.file in mtbr.files {
+for (mtbr.file in mtbr.files) {
 	load(mtbr.file)
 	cg.mtbr$posi <- as.integer(cg.mtbr$posi)
 	cg.mtbr$rC_n <- as.integer(cg.mtbr$rC_n)
