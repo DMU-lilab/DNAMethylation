@@ -18,7 +18,7 @@ if (file.exists(output.filename)) {
 	unlink(output.filename)
 }
 
-cat("chrom,posi,rC_n,rC_p,rT_n,rT_p", file = output.filename)
+cat("chrom,posi,rC_n,rC_p,rT_n,rT_p\n", file = output.filename)
 mtbr.files <- list.files(kMtbrPath, full.names = TRUE)
 for (mtbr.file in mtbr.files) {
 	message("converting ", mtbr.file)

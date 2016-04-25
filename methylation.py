@@ -147,52 +147,50 @@ def main():
 		type = float, default = 655.0, 
 		help = 'convolution window size')
 
-	args = parser.parse_args()
-	if(not os.path.exists(args.mtbrfile)):
-		print('error: Mtbr file "', args.mtbrfile, '"', ' doest not exist.')
-		sys.exit(-1)
-	if(not os.path.exists(args.chromsizesfile)):
-		print('error: chrom sizes file "', args.chromsizesfile, '"', ' doest not exist.')
-		sys.exit(-1)
-
 	baseFileName = os.path.splitext(os.path.basename(args.mtbrfile))[0]
 	global log
 	log = init_log(baseFileName + '.log')
 
+	args = parser.parse_args()
+	if(not os.path.exists(args.mtbrfile)):
+		log.info('error: Mtbr file "', args.mtbrfile, '"', ' doest not exist.')
+		sys.exit(-1)
+	if(not os.path.exists(args.chromsizesfile)):
+		log.info('error: chrom sizes file "', args.chromsizesfile, '"', ' doest not exist.')
+		sys.exit(-1)
+
 	# load  methylation mtbr file
 
-	print('[*] loading methlation file')
+	log.info('[*] loading methlation file')
 	dictMethy = load_methy_csv(args.mtbrfile)
 
 	# get chrom sizes
 
-	print('[*] getting chrom sizes')
+	log.info('[*] getting chrom sizes')
 	dictchromsizes = load_chromsizes(args.chromsizesfile)
 
 	# get methylation score
 
-	print('[*] getting methlation score')
+	log.info('[*] getting methlation score')
 	dictscore = get_meth_score(dictMethy, dictchromsizes)
 
 	# get methylation densities
 
-	dictDensity = {}
-	print('[*] calculating methylation density ...')
+	dictMethylation = {}
+	log.info('[*] calculating methylation level ...')
 	for chrname in dictscore:
-		print('    calculating methlation density for chromsome ' + chrname)
+		log.info('    calculating methylation level for chromsome ' + chrname)
 		methydensity = get_methy_density(dictscore[chrname], args.winsize, args.convfunc)
-		dictDensity[chrname] = methydensity
+		dictMethylation[chrname] = methydensity
 
 	# write the output file
 
-	baseFileName = os.path.basename("/home/cfs/Project/mm9/mm9.chrom.sizes").split('.')[0]
+	log.info('[*]writting methylation level csv file')
+	write_density_csv(dictMethylation, baseFileName + '.methylation.csv')
 
-	print('[*]writting methylation density csv file')
-	write_density_csv(dictDensity, baseFileName + '.methylation.density.csv')
-
-	print('[*]writting methylation density wig file')
-	write_density_wig(dictDensity, baseFileName + '.methylation.density.wig')
-	print('[*] done')
+	log.info('[*]writting methylation level wig file')
+	write_density_wig(dictMethylation, baseFileName + '.methylation.wig')
+	log.info('[*] done')
 
 if __name__ == '__main__':
 	main()
