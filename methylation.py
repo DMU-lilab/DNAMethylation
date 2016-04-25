@@ -147,11 +147,12 @@ def main():
 		type = float, default = 655.0, 
 		help = 'convolution window size')
 
+	args = parser.parse_args()
+
 	baseFileName = os.path.splitext(os.path.basename(args.mtbrfile))[0]
 	global log
 	log = init_log(baseFileName + '.log')
 
-	args = parser.parse_args()
 	if(not os.path.exists(args.mtbrfile)):
 		log.info('error: Mtbr file "', args.mtbrfile, '"', ' doest not exist.')
 		sys.exit(-1)
