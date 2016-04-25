@@ -15,7 +15,7 @@ if(!file.exists(kMtbrPath)){
 
 output.filename <- kOutputCsv
 if (file.exists(output.filename)) {
-	file.unlink(output.filename)
+	unlink(output.filename)
 }
 
 mtbr.files <- list.files(kMtbrPath, full.names = TRUE)
