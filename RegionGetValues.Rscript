@@ -103,9 +103,10 @@ sample.filenames <- list.files(kProjectPath)
 		# if (kGenomeName == "mm9") {
 		#     library("BSgenome.Mmusculus.UCSC.mm9")
 	 	message(chr.name, "\tgetting median score ", "\t", date())
-	 	message(kGenome, "\tgetting median score ", "\t", date())
 
 	 	dna.seq <- kGenome[[chr.name]]
+	 	message(length(dna.seq), "\tgetting median score ", "\t", date())
+
 		# }
 		# else if (kGenomeName == "hg19") {
 		#     library("BSgenome.Hsapiens.UCSC.hg19")
