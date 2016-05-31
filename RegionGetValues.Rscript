@@ -8,7 +8,6 @@ suppressPackageStartupMessages(library("optparse", quietly=TRUE, verbose=FALSE, 
 suppressPackageStartupMessages(library("methyutils", quietly=TRUE, verbose=FALSE, warn.conflicts=FALSE))
 suppressPackageStartupMessages(library("reshape2", quietly=TRUE, verbose=FALSE, warn.conflicts=FALSE))
 suppressPackageStartupMessages(library("data.table", quietly=TRUE, verbose=FALSE, warn.conflicts=FALSE))
-suppressPackageStartupMessages(library("BSgenome.Mmusculus.UCSC.mm9", quietly=TRUE, verbose=FALSE, warn.conflicts=FALSE))
 
 ##Specify desired options in a list
 
@@ -104,6 +103,7 @@ sample.filenames <- list.files(kProjectPath)
 		# if (kGenomeName == "mm9") {
 		#     library("BSgenome.Mmusculus.UCSC.mm9")
 	 	message(chr.name, "\tgetting median score ", "\t", date())
+	 	message(kGenome, "\tgetting median score ", "\t", date())
 
 	 	dna.seq <- kGenome[[chr.name]]
 		# }
