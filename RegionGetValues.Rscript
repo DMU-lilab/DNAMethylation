@@ -75,6 +75,10 @@ if(!file.exists(kProjectPath)){
 }
 
 
+region.path <- file.path(kRegionPath)
+regions <- read.table(region.path, header = TRUE, sep = "\t")
+regions$id <- 1:nrow(regions)
+dt.regions <- as.data.table(regions)
 
 sample.filenames <- list.files(kProjectPath)
 
@@ -82,11 +86,6 @@ sample.filenames <- list.files(kProjectPath)
  for (sample.name in sample.filenames){
                
     # message(sample.name,"-",file.name," is running","\t",date())
-    region.path <- file.path(kRegionPath)
-    regions <- read.table(region.path, header = TRUE, sep = "\t")
-    regions$id <- 1:nrow(regions)
-	dt.regions <- as.data.table(regions)
-
     regions[,sample.name] <- 0
 
  	sample.mtbr.path <- paste(kProjectPath, "/", sample.name, "/mtbr_cg/", sep="")
