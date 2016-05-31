@@ -99,24 +99,14 @@ sample.filenames <- list.files(kProjectPath)
  		load(mtbr.file)
 	 	chr.name <- unlist(strsplit(basename(chr.mtbr.file), ".", fixed = TRUE))[1]
 
-		##
-		# if (kGenomeName == "mm9") {
-		#     library("BSgenome.Mmusculus.UCSC.mm9")
 	 	message(chr.name, "\tgetting median score ", "\t", date())
 
 	 	dna.seq <- kGenome[[chr.name]]
-	 	message(length(dna.seq), "\tgetting median score ", "\t", date())
-
-		# }
-		# else if (kGenomeName == "hg19") {
-		#     library("BSgenome.Hsapiens.UCSC.hg19")
-		#     dna.seq <- Hsapiens[[chr]]
-		# }
-		# else {
-		#     stop("undefined genome. Only mm9 and hg19 are available now.")
-		# }
 
 		##
+		cg.mtbr$rC <- cg.mtbr$rC_n + cg.mtbr$rC_p
+		cg.mtbr$rT <- cg.mtbr$rT_n + cg.mtbr$rT_p
+		
 		rC <- integer(length(dna.seq))
 		rC[cg.mtbr$posi] <- cg.mtbr$rC
 		rT <- integer(length(dna.seq))
