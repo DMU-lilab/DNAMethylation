@@ -90,8 +90,7 @@ sample.filenames <- list.files(kProjectPath)
 		score <- rC / cover
 		score[is.na(score)] <- 0
 		#
-		dt.chr.regions <- dt.regions[dt.regions$chr == chr,]
-		dt.chr.regions.expend <- dt.chr.regions[,.(posi = start:end), by = id]
+		dt.chr.regions.expend <- dt.regions[dt.regions$chr == chr, ][,.(posi = start : end), by = id]
 
 		dt.chr.regions.expend$score <- score[dt.chr.regions.expend$posi]
 		regions[regions$chr == chr,][, sample.name] <- dt.chr.regions.expend[,.(score = median(score)), by = id]$score
