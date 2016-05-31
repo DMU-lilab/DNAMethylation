@@ -8,6 +8,7 @@ suppressPackageStartupMessages(library("optparse", quietly=TRUE, verbose=FALSE, 
 suppressPackageStartupMessages(library("methyutils", quietly=TRUE, verbose=FALSE, warn.conflicts=FALSE))
 suppressPackageStartupMessages(library("reshape2", quietly=TRUE, verbose=FALSE, warn.conflicts=FALSE))
 suppressPackageStartupMessages(library("data.table", quietly=TRUE, verbose=FALSE, warn.conflicts=FALSE))
+suppressPackageStartupMessages(library("BSgenome.Mmusculus.UCSC.mm9", quietly=TRUE, verbose=FALSE, warn.conflicts=FALSE))
 
 ##Specify desired options in a list
 
@@ -69,17 +70,17 @@ sample.filenames <- list.files(kProjectPath)
 		cg.mtbr$rT <- cg.mtbr$rT_p + cg.mtbr$rT_n
 
 		##
-		if (kGenomeName == "mm9") {
-		    library("BSgenome.Mmusculus.UCSC.mm9")
+		# if (kGenomeName == "mm9") {
+		#     library("BSgenome.Mmusculus.UCSC.mm9")
 		    dna.seq <- Mmusculus[[chr]]
-		}
-		else if (kGenomeName == "hg19") {
-		    library("BSgenome.Hsapiens.UCSC.hg19")
-		    dna.seq <- Hsapiens[[chr]]
-		}
-		else {
-		    stop("undefined genome. Only mm9 and hg19 are available now.")
-		}
+		# }
+		# else if (kGenomeName == "hg19") {
+		#     library("BSgenome.Hsapiens.UCSC.hg19")
+		#     dna.seq <- Hsapiens[[chr]]
+		# }
+		# else {
+		#     stop("undefined genome. Only mm9 and hg19 are available now.")
+		# }
 
 		##
 		rC <- integer(length(dna.seq))
