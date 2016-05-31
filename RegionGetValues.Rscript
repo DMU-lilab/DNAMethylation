@@ -63,7 +63,7 @@ sample.filenames <- list.files(kProjectPath)
     for (chr in chroms){
 
     	message(sample.name,"-",chr," is running","\t",date())
-    	cgmtbr.path <- file.path(kProjectPath,sample.name,paste(sample.name,".mtbr.cg",sep=""),paste( chr, ".Rdata",sep=""))
+    	cgmtbr.path <- file.path(kProjectPath,sample.name,"mtbr_cg",paste( chr, ".Rdata",sep=""))
         load(cgmtbr.path)
 		cg.mtbr$rC <- cg.mtbr$rC_p + cg.mtbr$rC_n
 		cg.mtbr$rT <- cg.mtbr$rT_p + cg.mtbr$rT_n
