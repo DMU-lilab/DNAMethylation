@@ -1,0 +1,107 @@
+#!/usr/bin/env Rscript
+
+# find region methylation Value
+
+# load library
+
+suppressPackageStartupMessages(library("optparse", quietly=TRUE, verbose=FALSE, warn.conflicts=FALSE))
+suppressPackageStartupMessages(library("methyutils", quietly=TRUE, verbose=FALSE, warn.conflicts=FALSE))
+suppressPackageStartupMessages(library("reshape2", quietly=TRUE, verbose=FALSE, warn.conflicts=FALSE))
+suppressPackageStartupMessages(library("data.table", quietly=TRUE, verbose=FALSE, warn.conflicts=FALSE))
+
+##Specify desired options in a list
+
+option_list <- list(
+    #make_option(c("-r","--region-path"), help="region path (used to read the region file)", default = "./"),
+    make_option(c("-p","--project-path"), help="project path(used to read the samples cg.mtbr file  )", default = "./"),
+    make_option(c("-o","--output-path"), help=" use to save the result", default = "./"),
+    make_option(c("-n","--genome-name"), help="genome object name. ex: \"mm9\", \"hg19\"", default = "mm9")
+)
+
+# Get command line options
+
+arguments <- parse_args(OptionParser(usage = "%prog [options] regionPath", option_list = option_list), positional_arguments = 1)
+opt <- arguments$options
+
+#kRegionPath <- opt$`region-path`
+kProjectPath <- opt$`project-path`
+kOutputPath <- opt$`output-path`
+kGenomeName <- opt$`genome-name`
+
+kRegionPath <- arguments$args
+
+# Get region file names
+
+
+if(!file.exists(kRegionPath)){
+        stop("region file path \"", kRegionPath ,"\" does not exist.")
+}
+
+region.filenames <- list.files(kRegionPath)
+
+# Get simple file names in order to read the cg.mtbr file
+
+if(!file.exists(kProjectPath)){
+        stop("project file path \"", kProjectPath ,"\" does not exist.")
+}
+
+
+
+sample.filenames <- list.files(kProjectPath)
+
+# find mtbr Value in the region 
+ for (sample.name in sample.filenames){
+               
+    # message(sample.name,"-",file.name," is running","\t",date())
+    region.path <- file.path(kRegionPath)
+    regions <- read.table(region.path, header = TRUE, sep = "\t")
+    regions$id <- 1:nrow(regions)
+	dt.regions <- as.data.table(regions)
+	dt.regions.expend <- dt.regions[,.(posi = start:end), by = id]
+
+    regions[,sample.name] <- 0
+
+    chroms <- unique(regions$chr)
+    for (chr in chrom){
+
+    	message(sample.name,"-",chr," is running","\t",date())
+    	cgmtbr.path <- file.path(kProjectPath,sample.name,paste(sample.name,".mtbr.cg",sep=""),paste( chr, ".Rdata",sep=""))
+        load(cgmtbr.path)
+		cg.mtbr$rC <- cg.mtbr$rC_p + cg.mtbr$rC_n
+		cg.mtbr$rT <- cg.mtbr$rT_p + cg.mtbr$rT_n
+
+		##
+		if (kGenomeName == "mm9") {
+		    library("BSgenome.Mmusculus.UCSC.mm9")
+		    dna.seq <- Mmusculus[[chr]]
+		}
+		else if (kGenomeName == "hg19") {
+		    library("BSgenome.Hsapiens.UCSC.hg19")
+		    dna.seq <- Hsapiens[[chr]]
+		}
+		else {
+		    stop("undefined genome. Only mm9 and hg19 are available now.")
+		}
+
+		##
+		rC <- integer(length(dna.seq))
+		rC[cg.mtbr$posi] <- cg.mtbr$rC
+		rT <- integer(length(dna.seq))
+		rT[cg.mtbr$posi] <- cg.mtbr$rT
+		cover <- rC + rT
+		score <- rC / cover
+		score(is.na(score)) <- 0
+		#
+		dt.chr.regions.expend <- dt.chr.regions.expend[chr == chr,]
+		dt.chr.regions.expend$score <- score[dt.chr.regions.expend$posi]
+		regions[regions$chr == chr,][, sample.name] <- dt.chr.regions.expend[,.(score = median(score)), by = id]$score
+
+    }
+ 
+ 
+}
+
+#save the file
+savefile <- file.path(kOutputPath,"region.tissues.score.txt")
+write.table(regions, savefile, row.names=F,col.names=T,quote=F) 
+
