@@ -60,7 +60,7 @@ sample.filenames <- list.files(kProjectPath)
     regions[,sample.name] <- 0
 
     chroms <- unique(regions$chr)
-    for (chr in chrom){
+    for (chr in chroms){
 
     	message(sample.name,"-",chr," is running","\t",date())
     	cgmtbr.path <- file.path(kProjectPath,sample.name,paste(sample.name,".mtbr.cg",sep=""),paste( chr, ".Rdata",sep=""))
