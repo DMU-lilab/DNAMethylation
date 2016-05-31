@@ -88,7 +88,7 @@ sample.filenames <- list.files(kProjectPath)
 		rT[cg.mtbr$posi] <- cg.mtbr$rT
 		cover <- rC + rT
 		score <- rC / cover
-		score(is.na(score)) <- 0
+		score[is.na(score)] <- 0
 		#
 		dt.chr.regions <- dt.regions[chr == chr,]
 		dt.chr.regions.expend <- dt.chr.regions[,.(posi = start:end), by = id]
