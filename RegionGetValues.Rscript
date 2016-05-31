@@ -15,7 +15,9 @@ suppressPackageStartupMessages(library("BSgenome.Mmusculus.UCSC.mm9", quietly=TR
 option_list <- list(
     make_option(c("-p","--project-path"), help="project path(used to read the samples cg.mtbr file  )", default = "./"),
     make_option(c("-o","--output-path"), help=" use to save the result", default = "./"),
-    make_option(c("-n","--genome-name"), help="genome object name. ex: \"mm9\", \"hg19\"", default = "mm9")
+    make_option(c("-l","--genome-library"), help="Bioconductor BSgenome library name", default = "BSgenome.Mmusculus.UCSC.mm9"),
+    make_option(c("-n","--genome-name"), help="genome library object name. ex: \"Mmusculus\", \"Hsapiens\", \"Scerevisiae\"", default = "Mmusculus"),
+    make_option(c("-t","--genome-type"), help="genome type , example mm9, mm10, hg19, hg18, default is NULL", default = "")
 )
 
 # Get command line options
@@ -24,11 +26,39 @@ arguments <- parse_args(OptionParser(usage = "%prog [options] regionPath", optio
 opt <- arguments$options
 
 #kRegionPath <- opt$`region-path`
+kGenomeLibrary <- opt$`genome-library`
+kGenomeName <- opt$`genome-name`
+kGenomeType <- opt$`genome-type`
+
 kProjectPath <- opt$`project-path`
 kOutputPath <- opt$`output-path`
 kGenomeName <- opt$`genome-name`
 
 kRegionPath <- arguments$args
+
+# load the genome library
+
+kGenomeTypeList <- list(
+	mm9  = list(genome.library="BSgenome.Mmusculus.UCSC.mm9",genome.name="Mmusculus"),
+	mm10 = list(genome.library="BSgenome.Mmusculus.UCSC.mm10",genome.name="Mmusculus"),
+	hg18 = list(genome.library="BSgenome.Hsapiens.UCSC.hg18",genome.name="Hsapiens"),
+	hg19 = list(genome.library="BSgenome.Hsapiens.UCSC.hg19",genome.name="Hsapiens"),
+	hg38 = list(genome.library="BSgenome.Hsapiens.UCSC.hg38",genome.name="Hsapiens")
+)
+kGenome <- NULL
+
+if ( kGenomeType %in% names(kGenomeTypeList) ){
+	suppressPackageStartupMessages(library(kGenomeTypeList[[kGenomeType]][["genome.library"]], character.only = TRUE, quietly=TRUE, verbose=FALSE, warn.conflicts=FALSE))
+	kGenome <- get(kGenomeTypeList[[kGenomeType]][["genome.name"]]) 
+}else {
+	suppressPackageStartupMessages(library(kGenomeLibrary, character.only = TRUE, quietly=TRUE, verbose=FALSE, warn.conflicts=FALSE))
+	kGenome <- get(kGenomeName) 
+}
+
+if ( is.null(kGenome)){
+	stop( "Load Biocondutor Genome Library ERROR " )
+}
+
 
 # Get region file names
 
@@ -60,19 +90,22 @@ sample.filenames <- list.files(kProjectPath)
 
     regions[,sample.name] <- 0
 
-    chroms <- unique(regions$chr)
-    for (chr in chroms){
+ 	sample.mtbr.path <- paste(kSamplePath, "/", sample.name, "/mtbr_cg/", sep="")
+ 	message("[*] Processing ", sample.name, "\t", date())
+ 	chr.mtbr.files <- list.files(sample.mtbr.path)
 
-    	message(sample.name,"-",chr," is running","\t",date())
-    	cgmtbr.path <- file.path(kProjectPath,sample.name,"mtbr_cg",paste( chr, ".Rdata",sep=""))
-        load(cgmtbr.path)
-		cg.mtbr$rC <- cg.mtbr$rC_p + cg.mtbr$rC_n
-		cg.mtbr$rT <- cg.mtbr$rT_p + cg.mtbr$rT_n
+ 	for (chr.mtbr.file in chr.mtbr.files){
+
+  		mtbr.file <- paste(sample.mtbr.path, chr.mtbr.file, sep = "")
+ 		load(mtbr.file)
+	 	chr.name <- unlist(strsplit(basename(chr.mtbr.file), ".", fixed = TRUE))[1]
 
 		##
 		# if (kGenomeName == "mm9") {
 		#     library("BSgenome.Mmusculus.UCSC.mm9")
-		    dna.seq <- Mmusculus[[chr]]
+	 	message(chr.name, "\tgetting median score ", "\t", date())
+
+	 	dna.seq <- kGenome[[chr.name]]
 		# }
 		# else if (kGenomeName == "hg19") {
 		#     library("BSgenome.Hsapiens.UCSC.hg19")
@@ -91,10 +124,10 @@ sample.filenames <- list.files(kProjectPath)
 		score <- rC / cover
 		score[is.na(score)] <- 0
 		#
-		dt.chr.regions.expend <- dt.regions[dt.regions$chr == chr, ][,.(posi = start : end), by = id]
+		dt.chr.regions.expend <- dt.regions[dt.regions$chr == chr.name, ][,.(posi = start : end), by = id]
 
 		dt.chr.regions.expend$score <- score[dt.chr.regions.expend$posi]
-		regions[regions$chr == chr,][, sample.name] <- dt.chr.regions.expend[,.(score = median(score)), by = id]$score
+		regions[regions$chr == chr.name,][, sample.name] <- dt.chr.regions.expend[,.(score = median(score)), by = id]$score
 
     }
  
