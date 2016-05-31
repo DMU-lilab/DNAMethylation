@@ -12,7 +12,6 @@ suppressPackageStartupMessages(library("data.table", quietly=TRUE, verbose=FALSE
 ##Specify desired options in a list
 
 option_list <- list(
-    #make_option(c("-r","--region-path"), help="region path (used to read the region file)", default = "./"),
     make_option(c("-p","--project-path"), help="project path(used to read the samples cg.mtbr file  )", default = "./"),
     make_option(c("-o","--output-path"), help=" use to save the result", default = "./"),
     make_option(c("-n","--genome-name"), help="genome object name. ex: \"mm9\", \"hg19\"", default = "mm9")
