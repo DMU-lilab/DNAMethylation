@@ -12,12 +12,8 @@ suppressPackageStartupMessages(library("data.table", quietly=TRUE, verbose=FALSE
 ##Specify desired options in a list
 
 option_list <- list(
-    make_option(c("-p","--project-path"), help="project path(used to read the samples cg.mtbr file  )", default = "./"),
+    make_option(c("-m","--mtbr-path"), help="used to read the samples cg.mtbr file", default = "./"),
     make_option(c("-o","--output-path"), help=" use to save the result", default = "./")
-    # make_option(c("-l","--genome-library"), help="Bioconductor BSgenome library name", default = "BSgenome.Mmusculus.UCSC.mm9"),
-    # make_option(c("-n","--genome-name"), help="genome library object name. ex: \"Mmusculus\", \"Hsapiens\", \"Scerevisiae\"", default = "Mmusculus"),
-    # make_option(c("-t","--genome-type"), help="genome type , example mm9, mm10, hg19, hg18, default is NULL", default = "")
-
 )
 
 # Get command line options
@@ -25,38 +21,10 @@ option_list <- list(
 arguments <- parse_args(OptionParser(usage = "%prog [options] regionPath", option_list = option_list), positional_arguments = 1)
 opt <- arguments$options
 
-# kGenomeLibrary <- opt$`genome-library`
-# kGenomeName <- opt$`genome-name`
-# kGenomeType <- opt$`genome-type`
-
-kProjectPath <- opt$`project-path`
+kMtbrPath <- opt$`mtbr-path`
 kOutputPath <- opt$`output-path`
 
 kRegionPath <- arguments$args
-
-# load the genome library
-
-# kGenomeTypeList <- list(
-# 	mm9  = list(genome.library="BSgenome.Mmusculus.UCSC.mm9",genome.name="Mmusculus"),
-# 	mm10 = list(genome.library="BSgenome.Mmusculus.UCSC.mm10",genome.name="Mmusculus"),
-# 	hg18 = list(genome.library="BSgenome.Hsapiens.UCSC.hg18",genome.name="Hsapiens"),
-# 	hg19 = list(genome.library="BSgenome.Hsapiens.UCSC.hg19",genome.name="Hsapiens"),
-# 	hg38 = list(genome.library="BSgenome.Hsapiens.UCSC.hg38",genome.name="Hsapiens")
-# )
-# kGenome <- NULL
-
-# if ( kGenomeType %in% names(kGenomeTypeList) ){
-# 	suppressPackageStartupMessages(library(kGenomeTypeList[[kGenomeType]][["genome.library"]], character.only = TRUE, quietly=TRUE, verbose=FALSE, warn.conflicts=FALSE))
-# 	kGenome <- get(kGenomeTypeList[[kGenomeType]][["genome.name"]]) 
-# }else {
-# 	suppressPackageStartupMessages(library(kGenomeLibrary, character.only = TRUE, quietly=TRUE, verbose=FALSE, warn.conflicts=FALSE))
-# 	kGenome <- get(kGenomeName) 
-# }
-
-# if ( is.null(kGenome)){
-# 	stop( "Load Biocondutor Genome Library ERROR " )
-# }
-
 
 # Get region file names
 
@@ -84,7 +52,6 @@ sample.filenames <- list.files(kProjectPath)
 # find mtbr Value in the region 
  for (sample.name in sample.filenames){
                
-    # message(sample.name,"-",file.name," is running","\t",date())
     sample.name.score <- paste(sample.name, "_score", sep = "")
     sample.name.methy <- paste(sample.name, "_methy", sep = "")
     sample.name.umethy <- paste(sample.name, "_umethy", sep = "")
@@ -107,9 +74,6 @@ sample.filenames <- list.files(kProjectPath)
 	 	chr.name <- unlist(strsplit(basename(chr.mtbr.file), ".", fixed = TRUE))[1]
 
 	 	message(chr.name, "\tgetting median score ", "\t", date())
-
-	 	# dna.seq <- kGenome[[chr.name]]
-
 		##
 		cg.mtbr$rC <- cg.mtbr$rC_n + cg.mtbr$rC_p
 		cg.mtbr$rT <- cg.mtbr$rT_n + cg.mtbr$rT_p
