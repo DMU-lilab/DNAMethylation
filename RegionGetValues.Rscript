@@ -147,5 +147,5 @@ sample.filenames <- list.files(kMtbrPath)
 
 #save the file
 savefile <- file.path(kOutputPath,"region.tissues.score.txt")
-write.table(regions, savefile, row.names=F,col.names=T,quote=F) 
+write.table(regions, savefile, row.names = FALSE, col.names = TRUE, quote = FALSE, sep = "\t") 
 
