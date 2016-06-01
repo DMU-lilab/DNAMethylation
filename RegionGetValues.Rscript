@@ -33,7 +33,6 @@ if(!file.exists(kRegionPath)){
         stop("region file path \"", kRegionPath ,"\" does not exist.")
 }
 
-region.filenames <- list.files(kRegionPath)
 
 # Get simple file names in order to read the cg.mtbr file
 
