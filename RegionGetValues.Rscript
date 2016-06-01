@@ -36,8 +36,8 @@ if(!file.exists(kRegionPath)){
 
 # Get simple file names in order to read the cg.mtbr file
 
-if(!file.exists(kProjectPath)){
-        stop("project file path \"", kProjectPath ,"\" does not exist.")
+if(!file.exists(kMtbrPath)){
+        stop("project file path \"", kMtbrPath ,"\" does not exist.")
 }
 
 
@@ -46,7 +46,7 @@ regions <- read.table(region.path, header = TRUE, sep = "\t")
 regions$id <- 1:nrow(regions)
 dt.regions <- as.data.table(regions)
 
-sample.filenames <- list.files(kProjectPath)
+sample.filenames <- list.files(kMtbrPath)
 
 # find mtbr Value in the region 
  for (sample.name in sample.filenames){
@@ -62,7 +62,7 @@ sample.filenames <- list.files(kProjectPath)
     regions[,sample.name.umethy] <- 0
     regions[,sample.name.cgnum] <- 0
 
- 	sample.mtbr.path <- paste(kProjectPath, "/", sample.name, "/mtbr_cg/", sep="")
+ 	sample.mtbr.path <- paste(kMtbrPath, "/", sample.name, "/mtbr_cg/", sep="")
  	message("[*] Processing ", sample.name, "\t", date())
  	chr.mtbr.files <- list.files(sample.mtbr.path)
 
