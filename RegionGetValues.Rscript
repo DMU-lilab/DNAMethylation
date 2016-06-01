@@ -91,7 +91,7 @@ sample.filenames <- list.files(kMtbrPath)
     sample.name.umethy <- paste(sample.name, "_umethy", sep = "")
     sample.name.methyNum <- paste(sample.name, "_methyNum", sep = "")
 
-    regions[,cgnum] <- 0
+    regions[,"cgnum"] <- 0
     regions[,sample.name.medianScore] <- 0
     regions[,sample.name.meanScore] <- 0
     regions[,sample.name.hmethy] <- 0
@@ -132,7 +132,7 @@ sample.filenames <- list.files(kMtbrPath)
 		dt.chr.value <- data.table(dt.chr.regions.expend.merge)[,.(cgnum = sum(cgnum), medianScore = median(score, na.rm = TRUE), meanScore = mean(score, na.rm = TRUE),hmethy = sum(Methy == 1), umethy = sum(Methy == 2), methyNum =  sum(!is.na(score))), by = id] 
 
 		dt.chr.value.order <- dt.chr.value[order(dt.chr.value$id),]
-		regions[regions$chr == chr.name,][, cgnum] <- dt.chr.value.order$cgnum
+		regions[regions$chr == chr.name,][, "cgnum"] <- dt.chr.value.order$cgnum
 		regions[regions$chr == chr.name,][, sample.name.medianScore] <- dt.chr.value.order$medianScore
 		regions[regions$chr == chr.name,][, sample.name.meanScore] <- dt.chr.value.order$meanScore
 		regions[regions$chr == chr.name,][, sample.name.hmethy] <- dt.chr.value.order$hmethy
