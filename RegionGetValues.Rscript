@@ -101,13 +101,13 @@ sample.filenames <- list.files(kMtbrPath)
 
  	sample.mtbr.path <- paste(kMtbrPath, "/", sample.name, "/mtbr_cg/", sep="")
  	message("[*] Processing ", sample.name, "\t", date())
- 	chr.mtbr.files <- list.files(sample.mtbr.path)
-
- 	for (chr.mtbr.file in chr.mtbr.files){
-
-  		mtbr.file <- paste(sample.mtbr.path, chr.mtbr.file, sep = "")
+ 	# chr.mtbr.files <- list.files(sample.mtbr.path)
+ 	chr.names <- as.character(unique(regions$chr))
+ 	# for (chr.mtbr.file in chr.mtbr.files){
+ 	for (chr.name in chr.names){
+  		mtbr.file <- paste(sample.mtbr.path, chr.name, ".Rdata",sep = "")
  		load(mtbr.file)
-	 	chr.name <- unlist(strsplit(basename(chr.mtbr.file), ".", fixed = TRUE))[1]
+	 	# chr.name <- unlist(strsplit(basename(chr.mtbr.file), ".", fixed = TRUE))[1]
 
 	 	message(chr.name, "\tgetting median score ", "\t", date())
 		##
